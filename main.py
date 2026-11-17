@@ -1,268 +1,108 @@
-import math
 import random
+from pathlib import Path
 
 import pygame
 from pygame import mixer
 
 from classes.player import Player
 from classes.enemy import BasicEnemy, BossEnemy
-from classes.projectile import ProjectileNormal, ProjectileFort
-
-# -------------------------
-# INITIALISATION
-# -------------------------
-
-pygame.init()
-
-# create the screen
-screen = pygame.display.set_mode((800, 600))
-
-# Caption and Icon
-pygame.display.set_caption("Space Invader")
-icon = pygame.image.load('./pictures/ufo.png')
-pygame.display.set_icon(icon)
-
-# -------------------------
-# BACKGROUND AND MUSIC
-# -------------------------
+from events import handle_events, update_game
 
 
-# Background
-background = pygame.image.load('./pictures/background.png')
-
-# Sound
-mixer.music.load("./sounds/background.wav")
-mixer.music.play(-1)
-
-bulletSound = mixer.Sound("./sounds/laser.wav")
-explosionSound = mixer.Sound("./sounds/explosion.wav")
-
-# -------------------------
-# PLAYER
-# -------------------------
-
-playerImg = pygame.image.load('./pictures/player.png')
-player=Player(370, 480, playerImg)
-
-# -------------------------
-# ENEMIES
-# -------------------------
-
-# Image des ennemis classiques
-enemy_image = pygame.image.load("./pictures/enemy.png")
-enemy_image = pygame.transform.smoothscale(
-    enemy_image, (64, 64)
-)
-
-# Image du boss
-boss_image = pygame.image.load("./pictures/boss.png")
-boss_image = pygame.transform.smoothscale(
-    boss_image, (200, 200)
-)
-
-enemies = []
-
-# Création des ennemis classiques
-for i in range(5):
-
-    x = random.randint(0, 800 - enemy_image.get_width())
-    y = random.randint(50, 150)
-
-    enemy = BasicEnemy(x, y, enemy_image)
-    enemies.append(enemy)
-
-# Création du boss
-boss = BossEnemy(300, 80, boss_image)
-enemies.append(boss)
-
-# -------------------------
-# BULLET
-# -------------------------
-
-# Ready - You can't see the bullet on the screen
-# Fire - The bullet is currently moving
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 
-
-bulletImg = pygame.image.load("./pictures/bullet.png")
-
-projectiles=[]
-
-# Score
-
-score_value = 0
-font = pygame.font.Font('freesansbold.ttf', 32)
-textX = 10
-testY = 10
-
-# Game Over
-over_font = pygame.font.Font("freesansbold.ttf", 64)
-
-game_over = False
-
-# -------------------------
-# FONCTIONS
-# -------------------------
-
-
-def show_score(x, y):
-    score = font.render(
-        "Score : " + str(score_value),
-        True,
-        (255, 255, 255)
-    )
+def show_score(screen, font, score_value, x, y):
+    score = font.render(f"Score : {score_value}", True, (255, 255, 255))
     screen.blit(score, (x, y))
 
-def game_over_text():
-    over_text = over_font.render(
-        "GAME OVER",
-        True,
-        (255, 255, 255)
-    )
+def show_game_over(screen, over_font):
+    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
     screen.blit(over_text, (200, 250))
 
-
-# -------------------------
-# GAME LOOP
-# -------------------------
-
-running = True
-
-while running:
-
-    # Affichage du fond
-    screen.fill((0, 0, 0))
-    screen.blit(background, (0, 0))
-
-    # Gestion des événements
-    for event in pygame.event.get():
-
-        if event.type == pygame.QUIT:
-            running = False
-
-        # Touches enfoncées
-        if event.type == pygame.KEYDOWN:
-
-            if event.key == pygame.K_LEFT:
-                player.x_change -= player.vitesse
-
-            if event.key == pygame.K_RIGHT:
-                player.x_change = player.vitesse
-
-            if event.key == pygame.K_SPACE and not game_over:
-
-                projectile= ProjectileNormal(player.x+16, player.y+10, bulletImg)
-                
-                projectiles.append(projectile)
-                
-                bulletSound.play()
-
-            if event.key == pygame.K_x and not game_over:
-
-                projectile = ProjectileFort(player.x + 16,player.y+10,bulletImg)
-
-                projectiles.append(projectile)
-
-                bulletSound.play()
-
-                
-
-        # Touches relâchées
-        if event.type == pygame.KEYUP:
-
-            if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
-                player.x_change = 0
+def main():
+    # -------------------------
+    # INITIALISATION
+    # -------------------------
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Space Invaders")
+    icon = pygame.image.load("pictures/ufo.png")
+    pygame.display.set_icon(icon)
 
     # -------------------------
-    # MISE A JOUR DU JEU
+    # ARRIERE-PLAN ET MUSIQUE
+    # -------------------------
+    background = pygame.image.load("pictures/background.png")
+    mixer.music.load("./sounds/background.wav")
+    mixer.music.play(-1)
+    bullet_sound = mixer.Sound(str("./sounds/laser.wav"))
+    explosion_sound = mixer.Sound("./sounds/explosion.wav")
+
+    # -------------------------
+    # JOUEUR & POLICES
+    # -------------------------
+    player_img = pygame.image.load("./pictures/player.png")
+    player = Player(370, 480, player_img)
+
+    score_value = 0
+    font = pygame.font.Font(None, 32)
+    over_font = pygame.font.Font(None, 64)  # Game Over
+    text_x, text_y = 10, 10
+
+    # -------------------------
+    # ENNEMIS & PROJECTILES
     # -------------------------
 
-    if not game_over:
+    enemy_img = pygame.transform.smoothscale(pygame.image.load("./pictures/enemy.png"), (64, 64))
+    boss_img = pygame.transform.smoothscale(pygame.image.load("./pictures/boss.png"), (200, 200))
+    bullet_img = pygame.image.load("./pictures/bullet.png")
 
-        # Déplacement du player
-        player.move(800)
+    enemies = [BasicEnemy(random.randint(0, SCREEN_WIDTH - enemy_img.get_width()), random.randint(50, 150), enemy_img) for _ in range(5)]
+    enemies.append(BossEnemy(350, 50, boss_img))
+    projectiles = []
 
-        # Déplacement des ennemis
-        for enemy in enemies:
+    # -------------------------
+    # BOUCLE PRINCIPALE (Game Loop)
+    # -------------------------
+    running = True
+    game_over = False
+    clock = pygame.time.Clock()
 
-            # Déplacement individuel
-            enemy.move(800)
+    while running:
+        clock.tick(60)
+        screen.blit(background, (0, 0))
 
-            # Vérification du Game Over
-            if enemy.y > 440:
-                game_over = True
-                break
+        # Gére les entrées et les événements
+        running = handle_events(player, projectiles, bullet_img, bullet_sound, game_over)
+        if not running:
+            break
 
+        score_gained, game_over = update_game(
+            player,
+            enemies,
+            projectiles,
+            SCREEN_WIDTH,
+            explosion_sound,
+            game_over,
+        )
+        score_value += score_gained
 
+        # Draw the current game state.
+        player.draw(screen)
+        for projectile in projectiles:
+            projectile.draw(screen)
         if not game_over:
+            for enemy in enemies:
+                enemy.draw(screen)
 
-            # Déplacement des projectiles
-            for projectile in projectiles:
-                projectile.move()
+        show_score(screen, font, score_value, text_x, text_y)
+        if game_over:
+            show_game_over(screen, over_font)
+        pygame.display.flip()
 
-            # Suppression des projectiles hors écran
-            projectiles = [
-                projectile
-                for projectile in projectiles
-                if projectile.y + projectile.image.get_height() > 0
-            ]
+    pygame.quit()
 
-            # Collisions
-            for projectile in projectiles[:]:
-
-                for enemy in enemies:
-
-                    if enemy.collides_with(projectile):
-
-                        enemy.take_damage(projectile.degats)
-
-                        explosionSound.play()
-
-                        projectiles.remove(projectile)
-
-                        if not enemy.is_alive():
-
-                            score_value += enemy.score_value
-
-                            new_x = random.randint(
-                                0,
-                                800 - enemy.image.get_width()
-                            )
-
-                            new_y = random.randint(50, 150)
-
-                            enemy.reset(new_x, new_y)
-
-                        break
-
-    # -------------------------
-    # AFFICHAGE
-    # -------------------------
-
-    # Affichage des ennemis
-    if not game_over:
-        for enemy in enemies:
-            enemy.draw(screen)
-
-    # Affichage du player
-    player.draw(screen)
-
-    # Affichage du score
-    show_score(textX, textY)
-
-    # Affichage Game Over
-    if game_over:
-        game_over_text()
-
-    for projectile in projectiles:
-        projectile.draw(screen)
-
-    # Actualisation de l'écran
-    pygame.display.update()
-
-
-# -------------------------
-# FERMETURE
-# -------------------------
-
-pygame.quit()
+if __name__ == "__main__":
+    main()
