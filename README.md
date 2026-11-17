@@ -45,12 +45,12 @@ Le score s'affiche dans le coin supérieur gauche. Les ennemis basiques valent 1
 
 Le jeu est divisé en une boucle principale, des fonctions d'événements/mises à jour, et des classes pour les objets du jeu :
 
-* [`main.py`]() initialise Pygame, charge les images et les sons, crée le joueur et les ennemis, et exécute la boucle de jeu à 60 FPS. Chaque frame gère les entrées, met à jour l'état du jeu, dessine les objets et le score, puis affiche la frame.
-* [`events.py`]() gère les événements du clavier/fenêtre et met à jour les mouvements, les positions des projectiles, les collisions, le score, la réapparition des ennemis et l'état de fin de jeu (game over).
-* [`classes/player.py`]() définit la position du joueur, la vitesse de déplacement, les limites de l'écran et le comportement d'affichage.
-* [`classes/enemy.py`]() définit le comportement partagé des ennemis en matière de mouvement, de santé, de dégâts, de collisions et de réapparition. `BasicEnemy` et `BossEnemy` définissent leur propre vitesse, santé, distance de descente et valeur de score.
-* [`classes/projectile.py`]() définit les projectiles se déplaçant vers le haut. `ProjectileNormal` et `ProjectileFort` spécifient les tirs normaux et puissants.
-* [`pictures/`]() contient les illustrations du joueur, de l'ennemi, du boss, des projectiles, de l'icône OVNI et du fond d'écran. `sounds/` contient la musique de fond, le laser et les effets d'explosion.
+* [`main.py`](https://github.com/krabandicoot/progra_projet_bac2/blob/main/main.py) initialise Pygame, charge les images et les sons, crée le joueur et les ennemis, et exécute la boucle de jeu à 60 FPS. Chaque frame gère les entrées, met à jour l'état du jeu, dessine les objets et le score, puis affiche la frame.
+* [`events.py`](https://github.com/krabandicoot/progra_projet_bac2/blob/main/events.py) gère les événements du clavier/fenêtre et met à jour les mouvements, les positions des projectiles, les collisions, le score, la réapparition des ennemis et l'état de fin de jeu (game over).
+* [`classes/player.py`](https://github.com/krabandicoot/progra_projet_bac2/blob/main/classes/player.py) définit la position du joueur, la vitesse de déplacement, les limites de l'écran et le comportement d'affichage.
+* [`classes/enemy.py`](https://github.com/krabandicoot/progra_projet_bac2/blob/main/classes/enemy.py) définit le comportement partagé des ennemis en matière de mouvement, de santé, de dégâts, de collisions et de réapparition. `BasicEnemy` et `BossEnemy` définissent leur propre vitesse, santé, distance de descente et valeur de score.
+* [`classes/projectile.py`](https://github.com/krabandicoot/progra_projet_bac2/blob/main/classes/projectile.py) définit les projectiles se déplaçant vers le haut. `ProjectileNormal` et `ProjectileFort` spécifient les tirs normaux et puissants.
+* [`pictures/`](https://github.com/krabandicoot/progra_projet_bac2/tree/main/pictures) contient les illustrations du joueur, de l'ennemi, du boss, des projectiles, de l'icône OVNI et du fond d'écran. `sounds/` contient la musique de fond, le laser et les effets d'explosion.
 
 ### Que se passe-t-il dans une frame ?
 
