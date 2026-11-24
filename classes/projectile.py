@@ -25,6 +25,9 @@ class Projectile:
     def move(self):
         self.y = self.y - self.vitesse
 
+    def update(self):
+        self.move()
+
     def draw(self, screen):
         screen.blit(self.image, (round(self.x), round(self.y)))
 

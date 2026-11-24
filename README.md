@@ -37,7 +37,7 @@ Fermez la fenêtre du jeu pour quitter. Sur certains systèmes, utilisez `python
 
 Votre vaisseau est limité aux bords de l'écran. Les ennemis se déplacent horizontalement et descendent lorsqu'ils atteignent un bord.
 
-Tirez-leur dessus avant qu'un ennemi ne descende trop bas : le jeu se termine lorsque la position d'un ennemi dépasse le seuil inférieur de l'écran.
+Tirez-leur dessus avant qu'un ennemi ne descende trop bas : le jeu se termine lorsque le bas d'un ennemi atteint ou dépasse la hauteur du vaisseau joueur.
 
 Le score s'affiche dans le coin supérieur gauche. Les ennemis basiques valent 1 point ; le boss vaut 5 points et nécessite trois points de dégâts pour être vaincu. Les ennemis détruits réapparaissent près du haut de l'écran, le jeu continue donc jusqu'à ce que vous perdiez.
 
